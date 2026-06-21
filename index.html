@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Excel公式助手AI</title>
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 800px;
+      margin: 40px auto;
+      background: #f6f7fb;
+      padding: 20px;
+    }
+
+    h1 { text-align: center; }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .box {
+      background: white;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🧠 Excel公式助手AI</h1>
+
+<textarea id="input" placeholder="输入你的Excel需求，例如：统计销售部工资总和"></textarea>
+
+<button onclick="generate()">生成公式</button>
+
+<div class="box" id="output">公式会显示在这里</div>
+<div class="box" id="explain">解释会显示在这里</div>
+
+<script>
+async function generate() {
+  const input = document.getElementById("input").value;
+
+  document.getElementById("output").innerText = "生成中...";
+  document.getElementById("explain").innerText = "";
+
+  try {
+    const res = await fetch("/api/excel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ input })
+    });
+
+    const data = await res.json();
+
+    const text = data.text;
+
+    const parts = text.split("【解释】");
+
+    document.getElementById("output").innerText =
+      parts[0].replace("【公式】", "").trim();
+
+    document.getElementById("explain").innerText =
+      parts[1] ? parts[1].trim() : "";
+
+  } catch (err) {
+    document.getElementById("output").innerText = "出错：" + err.message;
+  }
+}
+</script>
+
+</body>
+</html>
